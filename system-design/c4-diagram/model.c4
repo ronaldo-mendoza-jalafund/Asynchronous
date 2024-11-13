@@ -1,38 +1,70 @@
 model {
     driver = actor "Driver" "A garbage truck driver"
     alarm = actor "Alarm" "A device used to announce driver"
-    end_user = actor "End user" "A neighbor with garbage"
-    chart_plotter = actor "Chart plotter" "Defines garbage collection routes"
+    end_user = actor "End User" "A neighbor with garbage"
+    chart_plotter = actor "Chart Plotter" "Defines garbage collection routes"
+ apollo = softwareSystem "Apollo" "Asynchronous Event-Driven Notification System" {
 
-    apollo = softwareSystem "Apollo" "Asynchronous Event-Driven Notification System" {
-
-        application = container "Application" "" {
-            client = component "Command line interface" "event producer\n downstream event activity\n event consumer"
-            registrar = component "Registrar" "Register into the system"
-            event_processing_engine = component "Event processing engine" "identifying an event, and then selecting \nand executing the appropriate reaction."
-
-            client -> registrar "register itself into the system"
-            client -> event_processing_engine "produce events"
-            event_processing_engine -> client "notify of events"
+        ui = container "Command Line Interface" "User interface for configuration and monitoring" {
+            config_manager = component "Configuration Manager" "Manages topic creation and subscription settings"
+            status_viewer = component "Status Viewer" "Displays system status and alerts"
         }
+
+        event_broker = container "Event Broker" "Handles event ingestion and initial processing" {
+            event_storage_queue = component "Event Storage Queue" "Stores incoming events awaiting processing"
+            event_handler = component "Event Handler" "Processes each event from the queue"
+            topic_subscription_manager = component "Topic Subscription Manager" "Manages topics and subscriber settings"
+        }
+
+        event_router = container "Event Router" "Filters and routes events based on criteria" {
+            routing_logic = component "Routing Logic" "Applies predefined rules to determine event routes"
+            rules_manager = component "Rules Manager" "Updates and manages routing rules"
+        }
+
+        notification_dispatcher = container "Notification Dispatcher" "Sends notifications across multiple channels" {
+            email_service = component "Email Service" "Handles sending email notifications"
+            sms_service = component "SMS Service" "Handles sending SMS notifications"
+            push_service = component "Push Service" "Handles sending push notifications"
+            channel_selector = component "Channel Selector" "Determines the best channel for notifications"
+        }
+
+        backpressure_handler = container "Backpressure Handler" "Controls event inflow to prevent overload" {
+            inflow_controller = component "Inflow Controller" "Limits the rate of events entering the system"
+            traffic_distributor = component "Traffic Distributor" "Balances event load across processing units"
+        }
+
+        retry_handler = container "Retry Handler" "Retries failed notification attempts" {
+            retry_manager = component "Retry Manager" "Schedules retries for failed notifications"
+            error_logger = component "Error Logger" "Logs notification failures for monitoring"
+        }
+
+        config_manager -> event_broker "configure topics and subscriptions"
+        event_storage_queue -> event_handler "processes events in sequence"
+        event_handler -> event_router "routes events based on criteria"
+        routing_logic -> notification_dispatcher "forwards to selected channels"
+        channel_selector -> email_service "sends email"
+        channel_selector -> sms_service "sends SMS"
+        channel_selector -> push_service "sends push notifications"
+        inflow_controller -> event_storage_queue "controls inflow rate"
+        traffic_distributor -> event_broker "balances load across processing units"
+        retry_manager -> notification_dispatcher "retries failed notifications"
+        error_logger -> retry_manager "logs failures for future retries"
     }
 
-    driver -> apollo "input garbage volume data"
-    apollo -> driver "notify of assigned routes"
-
-    alarm -> apollo "produce location events"
-
-    apollo -> end_user "notify garbage truck location"
-
-    chart_plotter -> apollo "produce route creation event"
-    apollo -> chart_plotter "notify garbage volume"
-
+    driver -> ui "configures topics and checks status"
+    alarm -> notification_dispatcher "receives notification"
+    end_user -> notification_dispatcher "receives notification"
+    chart_plotter -> ui "receives and updates routes"
 }
 
 views {
 
   view index of apollo {
-    title "Alexandria system"
+    title "Apollo"
+    description "
+        Garbage truck tracker
+        Asynchronous Event-Driven Notification System
+    "
     include *
   }
 
@@ -46,8 +78,34 @@ views {
         chart_plotter
   }
 
-  view application of apollo.application {
+  view ui of apollo.ui {
     title "Application container"
     include *
   }
+
+  view event_broker of apollo.event_broker {
+    title "Application container"
+    include *
+  }
+
+  view event_router of apollo.event_router {
+    title "Application container"
+    include *
+  }
+
+  view notification_dispatcher of apollo.notification_dispatcher {
+    title "Application container"
+    include *
+  }
+
+  view backpressure_handler of apollo.backpressure_handler {
+    title "Application container"
+    include *
+  }
+
+  view retry_handler of apollo.retry_handler {
+    title "Application container"
+    include *
+  }
+
 }
