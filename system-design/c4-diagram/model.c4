@@ -1,0 +1,53 @@
+model {
+    driver = actor "Driver" "A garbage truck driver"
+    alarm = actor "Alarm" "A device used to announce driver"
+    end_user = actor "End user" "A neighbor with garbage"
+    chart_plotter = actor "Chart plotter" "Defines garbage collection routes"
+
+    apollo = softwareSystem "Apollo" "Asynchronous Event-Driven Notification System" {
+
+        application = container "Application" "" {
+            client = component "Command line interface" "event producer\n downstream event activity\n event consumer"
+            registrar = component "Registrar" "Register into the system"
+            event_processing_engine = component "Event processing engine" "identifying an event, and then selecting \nand executing the appropriate reaction."
+
+            client -> registrar "register itself into the system"
+            client -> event_processing_engine "produce events"
+            event_processing_engine -> client "notify of events"
+        }
+    }
+
+    driver -> apollo "input garbage volume data"
+    apollo -> driver "notify of assigned routes"
+
+    alarm -> apollo "produce location events"
+
+    apollo -> end_user "notify garbage truck location"
+
+    chart_plotter -> apollo "produce route creation event"
+    apollo -> chart_plotter "notify garbage volume"
+
+}
+
+views {
+
+  view index of apollo {
+    title "Alexandria system"
+    include *
+  }
+
+  view context {
+    title "System context"
+    include 
+        apollo,
+        driver,
+        alarm,
+        end_user,
+        chart_plotter
+  }
+
+  view application of apollo.application {
+    title "Application container"
+    include *
+  }
+}

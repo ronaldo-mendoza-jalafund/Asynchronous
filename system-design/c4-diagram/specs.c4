@@ -1,0 +1,24 @@
+specification {
+  element actor {
+    style {
+      shape person
+    }
+  }
+  element softwareSystem {
+    style {
+      opacity 35%
+    }
+  }
+  element component {
+    style {
+      color secondary
+      opacity 35%
+    }
+  }
+  element container {
+    style {
+      color secondary
+      opacity 35%
+    }
+  }
+}
