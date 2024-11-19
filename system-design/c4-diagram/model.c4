@@ -1,51 +1,28 @@
 model {
-    driver = actor "Driver" "A garbage truck driver"
-    alarm = actor "Alarm" "A device used to announce driver"
-    end_user = actor "End User" "A neighbor with garbage"
-    chart_plotter = actor "Chart Plotter" "Defines garbage collection routes"
+    driver = actor "Driver" "Garbage truck driver"
+    speaker = actor "Speaker" "Device used to announce garbage truck's position"
+    end_user = actor "End User" "Neighbor with garbage"
+    chart_plotter = actor "Chart Plotter" "Manages garbage recollection routes"
 
  apollo = softwareSystem "Apollo" "Asynchronous Event-Driven Notification System" {
 
-        user = container "User" "User interface for configuration and monitoring" {
-            config_manager = component "Configuration Manager" "Manages topic creation and subscription settings"
-            status_viewer = component "Status Viewer" "Displays system status and alerts"
+        application = container "Application" "Events handler" "Java"{
+            location_event_processor = component "Location event processor" "Handles speaker related events"
+            garbage_event_processor = component "Garbage event processor" "Handles garbage related events"
+            routes_event_processor = component "Routes event processor" "Handles routes related events"
         }
 
-        application = container "Application" "" {
-            ui = component "Command Line Interface" "User interface for configuration and monitoring" {
-            }
-
-            event_broker = component "Event Broker" "Handles event ingestion and initial processing" {
-            }
-
-            ui -> event_broker "interchange of events"
-
-            alarm_event_processor = component "Alarm event processor" ""
-            garbage_event_processor = component "Garbage event processor Broker" ""
-            routes_event_processor = component "Routes event processor Broker" ""
-
-            event_broker -> alarm_event_processor "process event"
-            event_broker -> garbage_event_processor "process event"
-            event_broker -> routes_event_processor "process event"
-
-            notification_dispatcher = component "Notification Dispatcher" "Sends notifications across multiple channels" {}
-
-            alarm_event_processor -> notification_dispatcher "request notification"
-            garbage_event_processor -> notification_dispatcher "request notification"
-            routes_event_processor -> notification_dispatcher "request notification"
-
-            retry_handler = component "Retry Handler" "Retries failed notification attempts" {
-            }
+        user_cli = container "User terminal application" "User interface for configuration and monitoring" "Java" {
+            user_cli -> location_event_processor "Consume/Produce location"
+            user_cli -> garbage_event_processor "Consume/Produce garbage collection"
+            user_cli -> routes_event_processor "Consume/Produce garbage route"
         }
-
-        user -> event_broker "interchange of events"
-
     }
 
-    driver -> ui "configures topics and checks status"
-    alarm -> notification_dispatcher "receives notification"
-    end_user -> notification_dispatcher "receives notification"
-    chart_plotter -> ui "receives and updates routes"
+    driver -> user_cli "Subscribes to route notifications"
+    speaker -> user_cli "Transmittes real-time truck location"
+    end_user -> user_cli "Subscribes to garbage truck location notifications"
+    chart_plotter -> user_cli "Creates garbage recollection route. Subscribes to garbage recollection notifications"
 }
 
 views {
@@ -64,12 +41,12 @@ views {
     include 
         apollo,
         driver,
-        alarm,
+        speaker,
         end_user,
         chart_plotter
   }
 
-  view user of apollo.user {
+  view user_cli of apollo.user_cli {
     title "User container"
     description "
         Allows a user to interact with the system
@@ -84,20 +61,4 @@ views {
     "
     include *
   }
-
-  view event_broker of apollo.event_broker {
-    title "Application container"
-    include *
-  }
-
-  view notification_dispatcher of apollo.notification_dispatcher {
-    title "Application container"
-    include *
-  }
-
-  view retry_handler of apollo.retry_handler {
-    title "Application container"
-    include *
-  }
-
 }
