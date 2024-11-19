@@ -3,52 +3,43 @@ model {
     alarm = actor "Alarm" "A device used to announce driver"
     end_user = actor "End User" "A neighbor with garbage"
     chart_plotter = actor "Chart Plotter" "Defines garbage collection routes"
+
  apollo = softwareSystem "Apollo" "Asynchronous Event-Driven Notification System" {
 
-        ui = container "Command Line Interface" "User interface for configuration and monitoring" {
+        user = container "User" "User interface for configuration and monitoring" {
             config_manager = component "Configuration Manager" "Manages topic creation and subscription settings"
             status_viewer = component "Status Viewer" "Displays system status and alerts"
         }
 
-        event_broker = container "Event Broker" "Handles event ingestion and initial processing" {
-            event_storage_queue = component "Event Storage Queue" "Stores incoming events awaiting processing"
-            event_handler = component "Event Handler" "Processes each event from the queue"
-            topic_subscription_manager = component "Topic Subscription Manager" "Manages topics and subscriber settings"
+        application = container "Application" "" {
+            ui = component "Command Line Interface" "User interface for configuration and monitoring" {
+            }
+
+            event_broker = component "Event Broker" "Handles event ingestion and initial processing" {
+            }
+
+            ui -> event_broker "interchange of events"
+
+            alarm_event_processor = component "Alarm event processor" ""
+            garbage_event_processor = component "Garbage event processor Broker" ""
+            routes_event_processor = component "Routes event processor Broker" ""
+
+            event_broker -> alarm_event_processor "process event"
+            event_broker -> garbage_event_processor "process event"
+            event_broker -> routes_event_processor "process event"
+
+            notification_dispatcher = component "Notification Dispatcher" "Sends notifications across multiple channels" {}
+
+            alarm_event_processor -> notification_dispatcher "request notification"
+            garbage_event_processor -> notification_dispatcher "request notification"
+            routes_event_processor -> notification_dispatcher "request notification"
+
+            retry_handler = component "Retry Handler" "Retries failed notification attempts" {
+            }
         }
 
-        event_router = container "Event Router" "Filters and routes events based on criteria" {
-            routing_logic = component "Routing Logic" "Applies predefined rules to determine event routes"
-            rules_manager = component "Rules Manager" "Updates and manages routing rules"
-        }
+        user -> event_broker "interchange of events"
 
-        notification_dispatcher = container "Notification Dispatcher" "Sends notifications across multiple channels" {
-            email_service = component "Email Service" "Handles sending email notifications"
-            sms_service = component "SMS Service" "Handles sending SMS notifications"
-            push_service = component "Push Service" "Handles sending push notifications"
-            channel_selector = component "Channel Selector" "Determines the best channel for notifications"
-        }
-
-        backpressure_handler = container "Backpressure Handler" "Controls event inflow to prevent overload" {
-            inflow_controller = component "Inflow Controller" "Limits the rate of events entering the system"
-            traffic_distributor = component "Traffic Distributor" "Balances event load across processing units"
-        }
-
-        retry_handler = container "Retry Handler" "Retries failed notification attempts" {
-            retry_manager = component "Retry Manager" "Schedules retries for failed notifications"
-            error_logger = component "Error Logger" "Logs notification failures for monitoring"
-        }
-
-        config_manager -> event_broker "configure topics and subscriptions"
-        event_storage_queue -> event_handler "processes events in sequence"
-        event_handler -> event_router "routes events based on criteria"
-        routing_logic -> notification_dispatcher "forwards to selected channels"
-        channel_selector -> email_service "sends email"
-        channel_selector -> sms_service "sends SMS"
-        channel_selector -> push_service "sends push notifications"
-        inflow_controller -> event_storage_queue "controls inflow rate"
-        traffic_distributor -> event_broker "balances load across processing units"
-        retry_manager -> notification_dispatcher "retries failed notifications"
-        error_logger -> retry_manager "logs failures for future retries"
     }
 
     driver -> ui "configures topics and checks status"
@@ -78,8 +69,19 @@ views {
         chart_plotter
   }
 
-  view ui of apollo.ui {
+  view user of apollo.user {
+    title "User container"
+    description "
+        Allows a user to interact with the system
+    "
+    include *
+  }
+
+  view application of apollo.application {
     title "Application container"
+    description "
+        Event
+    "
     include *
   }
 
@@ -88,17 +90,7 @@ views {
     include *
   }
 
-  view event_router of apollo.event_router {
-    title "Application container"
-    include *
-  }
-
   view notification_dispatcher of apollo.notification_dispatcher {
-    title "Application container"
-    include *
-  }
-
-  view backpressure_handler of apollo.backpressure_handler {
     title "Application container"
     include *
   }
