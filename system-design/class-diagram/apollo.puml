@@ -1,0 +1,85 @@
+@startuml
+
+package "Domain" {
+    class Event {
+        head: string
+        boddy: string
+    }
+}
+
+interface IEventProcessor {
+    + handleEvent(event: Event)
+}
+IEventProcessor <|.. LocationEventProcessor
+IEventProcessor <|.. NotificationEventProcessor
+
+package "Event broker" {
+    class EventPublisher {
+        - eventProcessors: HashMap<string, IEventProcessor[]>
+
+        + registerTopic(topic: string): void
+        + publishEvent(topic: string, event Event): void
+        + subscribe(topic: string, eventProcessor: IEventProcessor): void
+    }
+    EventPublisher ..> IEventProcessor: <<use>>
+
+    class ServerSocket {
+        - eventBroker: EventPublisher
+        + startListening(): void
+    }
+    ServerSocket ..> EventPublisher: <<use>>
+    ServerSocket ..> Event: <<create>>
+}
+
+
+class ClientSocket {
+    + send(): void
+}
+
+class NotificationEventProcessor {
+    - clientSocket: ClientSocket
+    - eventBroker: EventPublisher
+    - pendingNotifications: Event[]
+
+    - send(): void
+}
+NotificationEventProcessor ..> ClientSocket: <<use>>
+NotificationEventProcessor ..> EventPublisher: <<use>>
+note left of NotificationEventProcessor
+notification_event
+Event {
+    receiverId: id
+    payload: Object
+}
+end note
+
+class LocationEventProcessor {
+    - eventBroker: EventPublisher
+    - subsriberIdList: id[]
+    - truckIdList: id[]
+    - timer: Timer
+    - isGateOpen: boolean
+
+    + onTick(): void
+    - discriminateEvents(): void
+    - fireNotificationEvent(): void
+    - addSubscriber(id: UUID): void
+    - addTruck(id: UUID): void
+}
+LocationEventProcessor ..> EventPublisher: <<use>>
+note top of LocationEventProcessor
+location_event.
+    Event {
+        location: lat,long
+        truckId: uuid
+    }
+This event should be handled every 2500ms. A location device can produce a relative
+high amount of location_events in the span of a second. In order to avoid this
+possible backpressure, LocationEventProcessor can drop those events.
+
+subscribe_event
+    Event {
+        subscriberId: id
+    }
+end note
+@enduml
