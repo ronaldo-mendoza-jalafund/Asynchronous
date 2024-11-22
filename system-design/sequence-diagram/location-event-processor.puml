@@ -1,0 +1,35 @@
+@startuml
+title Location processing workflow
+header Apollo system
+footer sequence diagram
+
+participant "socketServer:EventBroker" AS socket_server
+participant "publisher:EventBroker" AS publisher
+
+participant ":LocationEventProcessor" AS location_processor
+participant ":NotificationsEventProcessor" AS notification_processor
+participant "SocketClient:NotificationsEventProcessor" AS socket_client
+
+/'
+group Cold Start
+location_processor -> publisher: create location topic
+notification_processor -> publisher: create notification topic
+end
+'/
+
+socket_server -> publisher: broadcast location_subscription event
+publisher -> location_processor: process location_subscription
+socket_server -> publisher: broadcast location_update event
+publisher -> location_processor: process location_update event
+location_processor -> publisher: broadcast location_notification event
+publisher -> notification_processor: process location_notification event
+notification_processor -> socket_client: send notification
+
+
+note right
+location_subscription: triggered when new user subscribes
+location_update: triggered when truck moves
+location_notification: triggered to send a notification
+end note
+
+@enduml
