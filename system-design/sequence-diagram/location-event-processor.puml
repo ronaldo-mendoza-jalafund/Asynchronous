@@ -11,25 +11,28 @@ participant ":NotificationsEventProcessor" AS notification_processor
 participant "SocketClient:NotificationsEventProcessor" AS socket_client
 
 /'
-group Cold Start
-location_processor -> publisher: create location topic
-notification_processor -> publisher: create notification topic
-end
+Topics:
+    subscribe
+    location
+    notification
 '/
 
-socket_server -> publisher: broadcast location_subscription event
-publisher -> location_processor: process location_subscription
-socket_server -> publisher: broadcast location_update event
-publisher -> location_processor: process location_update event
-location_processor -> publisher: broadcast location_notification event
-publisher -> notification_processor: process location_notification event
+group "subscribe" topic
+socket_server -> publisher: subscribe event (client)
+publisher -> location_processor: process event
+socket_server -> publisher:  subscribe event (truck)
+publisher -> location_processor: process event
+end
+
+group "location" topic
+socket_server -> publisher: location_update event
+publisher -> location_processor: process event
+end
+
+group "notification" topic
+location_processor -> publisher: notification event
+publisher -> notification_processor: process event
 notification_processor -> socket_client: send notification
-
-
-note right
-location_subscription: triggered when new user subscribes
-location_update: triggered when truck moves
-location_notification: triggered to send a notification
-end note
+end
 
 @enduml
