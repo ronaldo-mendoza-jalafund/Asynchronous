@@ -18,7 +18,6 @@ repositories {
 dependencies {
     // Use JUnit test framework.
     testImplementation(libs.junit)
-    implementation("com.rabbitmq:amqp-client:5.16.0")
     implementation("org.slf4j:slf4j-simple:2.0.0-alpha1")
 
     // This dependency is used by the application.
