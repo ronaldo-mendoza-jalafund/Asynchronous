@@ -1,0 +1,83 @@
+@startuml
+skinparam linetype ortho
+title Apollo
+
+package "Domain" {
+    class SubscribeEvent {
+        - id: UUID (must be unique)
+        - topic: String
+    }
+
+    class LocationUpdateEvent {
+        - truckId: UUID
+        - lat: float
+        - long: float
+    }
+
+    class NotificationEvent {
+        - subscriberId: UUID
+        - payload: String
+    }
+}
+
+interface IEventProcessor {
+    + handleEvent(event: Event): void
+}
+
+IEventProcessor <|.. LocationEventProcessor
+IEventProcessor <|.. NotificationEventProcessor
+
+package "Event Broker" {
+    class EventPublisher {
+        - eventProcessors: HashMap<string, IEventProcessor[]>
+
+        + registerTopic(topic: string): void
+        + publishEvent(topic: string, event: Event): void
+        + subscribe(topic: string, eventProcessor: IEventProcessor): void
+    }
+
+    EventPublisher ..> IEventProcessor: <<use>>
+
+    class ServerSocket {
+        - eventBroker: EventPublisher
+        + startListening(): void
+    }
+
+    ServerSocket ..> EventPublisher: <<use>>
+    ServerSocket ..> NotificationEvent: <<create>>
+    ServerSocket ..> LocationUpdateEvent: <<create>>
+    ServerSocket ..> SubscribeEvent: <<create>>
+}
+
+class ClientSocket {
+    + send(data: String): void
+}
+
+class NotificationEventProcessor {
+    - clientSocket: ClientSocket
+    - eventBroker: EventPublisher
+    - pendingNotifications: Event[]
+
+    - send(): void
+}
+
+NotificationEventProcessor ..> ClientSocket: <<use>>
+NotificationEventProcessor ..> EventPublisher: <<use>>
+
+class LocationEventProcessor {
+    - eventBroker: EventPublisher
+    - subscriberIdList: List<UUID> 
+    - truckIdList: List<UUID> 
+    - timer: Timer
+    - isGateOpen: boolean
+
+    + onTick(): void
+    - discriminateEvents(): void
+    - fireNotificationEvent(subscriberId: UUID): void
+    + addSubscriber(id: UUID): void
+    + addTruck(id: UUID): void
+}
+
+LocationEventProcessor ..> EventPublisher: <<use>>
+
+@enduml
