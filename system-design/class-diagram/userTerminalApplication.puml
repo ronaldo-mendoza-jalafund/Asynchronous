@@ -1,0 +1,61 @@
+@startuml UserTerminalApplication
+
+skinparam linetype ortho
+title User Terminal Application
+
+package "User  Terminal" {
+    class UserTerminal {
+        +start(): void
+        +subscribeToLocationUpdates(user: User): void
+        +subscribeToGarbageUpdates(user: User): void
+        +subscribeToRoutesUpdates(user: User): void
+    }
+
+    class User {
+        - id: UUID
+        - name: String
+        + subscribe(subscription: Subscription): void
+        + receiveNotification(message: String): void
+    }
+
+    class Subscription {
+        - id: UUID
+        - topic: String
+        + subscribeToEvent(event: Event): void
+    }
+
+    class NotificationService {
+        + sendNotification(user: User, message: String): void
+    }
+}
+
+package "Event Processing" {
+    class LocationEventProcessor {
+        + processLocationUpdate(event: LocationUpdateEvent): void
+        + notifyUsers(locationUpdate: LocationUpdateEvent): void
+    }
+
+    class GarbageEventProcessor {
+        + processGarbageUpdate(event: GarbageUpdateEvent): void
+        + notifyUsers(garbageUpdate: GarbageUpdateEvent): void
+    }
+
+    class RoutesEventProcessor {
+        + processRouteUpdate(event: RouteUpdateEvent): void
+        + notifyUsers(routeUpdate: RouteUpdateEvent): void
+    }
+}
+
+UserTerminal --> User : interacts
+User"1" o-- "*" Subscription : manages >
+
+UserTerminal o--> LocationEventProcessor : manages >
+UserTerminal o--> GarbageEventProcessor : manages >
+UserTerminal o--> RoutesEventProcessor : manages >
+
+NotificationService *-- User : sends notifications >
+LocationEventProcessor ..> NotificationService : notifies >
+GarbageEventProcessor ..> NotificationService : notifies >
+RoutesEventProcessor ..> NotificationService : notifies >
+
+@enduml
