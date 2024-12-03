@@ -32,17 +32,21 @@ package "User   Terminal" {
     }
 
     class SubscriptionManager {
-        + subscribeUser (user: User, subscription: Subscription): void
-        + unsubscribeUser (user: User, subscription: Subscription): void
+        + subscribeUser   (user: User, subscription: Subscription): void
+        + unsubscribeUser   (user: User, subscription: Subscription): void
         + notifySubscribers(event: Event): void
     }
 
-    class NotificationService {
+    interface INotificationService {
+        + sendNotification(user: User, message: String): void
+    }
+
+    class NotificationService implements INotificationService {
         + sendNotification(user: User, message: String): void
     }
 
     class UserInputHandler {
-        + handleUser Input(input: String): void
+        + handleUser  Input(input: String): void
     }
 
     class OutputHandler {
@@ -52,6 +56,8 @@ package "User   Terminal" {
 
 package "Event Processing" {
     class EventProcessor {
+        - notificationService: INotificationService
+        + EventProcessor(notificationService: INotificationService)
         + processEvent(event: Event): void
         + notifyUsers(event: Event): void
     }
@@ -81,7 +87,6 @@ SubscriptionManager ..> Subscription : uses >
 UserTerminal o--> EventProcessor : manages >
 
 
-NotificationService *-- User : sends notifications >
-EventProcessor ..> NotificationService : notifies >
+EventProcessor ..> INotificationService : uses >
 
 @enduml
