@@ -3,12 +3,9 @@
 skinparam linetype ortho
 title User Terminal Application
 
-package "User  Terminal" {
+package "User   Terminal" {
     class UserTerminal {
         +start(): void
-        +subscribeToLocationUpdates(user: User): void
-        +subscribeToGarbageUpdates(user: User): void
-        +subscribeToRoutesUpdates(user: User): void
     }
 
     class User {
@@ -18,44 +15,73 @@ package "User  Terminal" {
         + receiveNotification(message: String): void
     }
 
-    class Subscription {
-        - id: UUID
-        - topic: String
+    interface Subscription {
         + subscribeToEvent(event: Event): void
+    }
+
+    class LocationSubscription implements Subscription {
+        + subscribeToEvent(event: LocationUpdateEvent): void
+    }
+
+    class GarbageSubscription implements Subscription {
+        + subscribeToEvent(event: GarbageUpdateEvent): void
+    }
+
+    class RoutesSubscription implements Subscription {
+        + subscribeToEvent(event: RouteUpdateEvent): void
+    }
+
+    class SubscriptionManager {
+        + subscribeUser (user: User, subscription: Subscription): void
+        + unsubscribeUser (user: User, subscription: Subscription): void
+        + notifySubscribers(event: Event): void
     }
 
     class NotificationService {
         + sendNotification(user: User, message: String): void
     }
+
+    class UserInputHandler {
+        + handleUser Input(input: String): void
+    }
+
+    class OutputHandler {
+        + displayNotification(notification: String): void
+    }
 }
 
 package "Event Processing" {
-    class LocationEventProcessor {
-        + processLocationUpdate(event: LocationUpdateEvent): void
-        + notifyUsers(locationUpdate: LocationUpdateEvent): void
+    class EventProcessor {
+        + processEvent(event: Event): void
+        + notifyUsers(event: Event): void
     }
 
-    class GarbageEventProcessor {
-        + processGarbageUpdate(event: GarbageUpdateEvent): void
-        + notifyUsers(garbageUpdate: GarbageUpdateEvent): void
+    class LocationEventProcessor extends EventProcessor {
+        + processEvent(event: LocationUpdateEvent): void
     }
 
-    class RoutesEventProcessor {
-        + processRouteUpdate(event: RouteUpdateEvent): void
-        + notifyUsers(routeUpdate: RouteUpdateEvent): void
+    class GarbageEventProcessor extends EventProcessor {
+        + processEvent(event: GarbageUpdateEvent): void
+    }
+
+    class RoutesEventProcessor extends EventProcessor {
+        + processEvent(event: RouteUpdateEvent): void
     }
 }
 
 UserTerminal --> User : interacts
-User"1" o-- "*" Subscription : manages >
+User   "1" o-- "*" Subscription : manages >
+UserTerminal o--> SubscriptionManager : delegates >
+UserTerminal o--> UserInputHandler : receives input >
+UserTerminal o--> OutputHandler : displays output >
 
-UserTerminal o--> LocationEventProcessor : manages >
-UserTerminal o--> GarbageEventProcessor : manages >
-UserTerminal o--> RoutesEventProcessor : manages >
+SubscriptionManager *-- User : manages subscriptions >
+SubscriptionManager ..> Subscription : uses >
+
+UserTerminal o--> EventProcessor : manages >
+
 
 NotificationService *-- User : sends notifications >
-LocationEventProcessor ..> NotificationService : notifies >
-GarbageEventProcessor ..> NotificationService : notifies >
-RoutesEventProcessor ..> NotificationService : notifies >
+EventProcessor ..> NotificationService : notifies >
 
 @enduml
