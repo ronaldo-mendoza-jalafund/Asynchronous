@@ -1,0 +1,64 @@
+model {
+    driver = actor "Driver" "Garbage truck driver"
+    speaker = actor "Speaker" "Device used to announce garbage truck's position"
+    end_user = actor "End User" "Neighbor with garbage"
+    chart_plotter = actor "Chart Plotter" "Manages garbage recollection routes"
+
+ apollo = softwareSystem "Apollo" "Asynchronous Event-Driven Notification System" {
+
+        application = container "Application" "Events handler" "Java"{
+            location_event_processor = component "Location event processor" "Handles speaker related events"
+            garbage_event_processor = component "Garbage event processor" "Handles garbage related events"
+            routes_event_processor = component "Routes event processor" "Handles routes related events"
+        }
+
+        user_cli = container "User terminal application" "User interface for configuration and monitoring" "Java" {
+            user_cli -> location_event_processor "Consume/Produce location"
+            user_cli -> garbage_event_processor "Consume/Produce garbage collection"
+            user_cli -> routes_event_processor "Consume/Produce garbage route"
+        }
+    }
+
+    driver -> user_cli "Subscribes to route notifications"
+    speaker -> user_cli "Transmittes real-time truck location"
+    end_user -> user_cli "Subscribes to garbage truck location notifications"
+    chart_plotter -> user_cli "Creates garbage recollection route. Subscribes to garbage recollection notifications"
+}
+
+views {
+
+  view index of apollo {
+    title "Apollo"
+    description "
+        Garbage truck tracker
+        Asynchronous Event-Driven Notification System
+    "
+    include *
+  }
+
+  view context {
+    title "System context"
+    include 
+        apollo,
+        driver,
+        speaker,
+        end_user,
+        chart_plotter
+  }
+
+  view user_cli of apollo.user_cli {
+    title "User container"
+    description "
+        Allows a user to interact with the system
+    "
+    include *
+  }
+
+  view application of apollo.application {
+    title "Application container"
+    description "
+        Event
+    "
+    include *
+  }
+}

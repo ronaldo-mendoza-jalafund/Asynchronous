@@ -1,0 +1,92 @@
+@startuml UserTerminalApplication
+
+skinparam linetype ortho
+title User Terminal Application
+
+package "User   Terminal" {
+    class UserTerminal {
+        +start(): void
+    }
+
+    class User {
+        - id: UUID
+        - name: String
+        + subscribe(subscription: Subscription): void
+        + receiveNotification(message: String): void
+    }
+
+    interface Subscription {
+        + subscribeToEvent(event: Event): void
+    }
+
+    class LocationSubscription implements Subscription {
+        + subscribeToEvent(event: LocationUpdateEvent): void
+    }
+
+    class GarbageSubscription implements Subscription {
+        + subscribeToEvent(event: GarbageUpdateEvent): void
+    }
+
+    class RoutesSubscription implements Subscription {
+        + subscribeToEvent(event: RouteUpdateEvent): void
+    }
+
+    class SubscriptionManager {
+        + subscribeUser   (user: User, subscription: Subscription): void
+        + unsubscribeUser   (user: User, subscription: Subscription): void
+        + notifySubscribers(event: Event): void
+    }
+
+    interface INotificationService {
+        + sendNotification(user: User, message: String): void
+    }
+
+    class NotificationService implements INotificationService {
+        + sendNotification(user: User, message: String): void
+    }
+
+    class UserInputHandler {
+        + handleUser  Input(input: String): void
+    }
+
+    class OutputHandler {
+        + displayNotification(notification: String): void
+    }
+}
+
+package "Event Processing" {
+    class EventProcessor {
+        - notificationService: INotificationService
+        + EventProcessor(notificationService: INotificationService)
+        + processEvent(event: Event): void
+        + notifyUsers(event: Event): void
+    }
+
+    class LocationEventProcessor extends EventProcessor {
+        + processEvent(event: LocationUpdateEvent): void
+    }
+
+    class GarbageEventProcessor extends EventProcessor {
+        + processEvent(event: GarbageUpdateEvent): void
+    }
+
+    class RoutesEventProcessor extends EventProcessor {
+        + processEvent(event: RouteUpdateEvent): void
+    }
+}
+
+UserTerminal --> User : interacts
+User   "1" o-- "*" Subscription : manages >
+UserTerminal o--> SubscriptionManager : delegates >
+UserTerminal o--> UserInputHandler : receives input >
+UserTerminal o--> OutputHandler : displays output >
+
+SubscriptionManager *-- User : manages subscriptions >
+SubscriptionManager ..> Subscription : uses >
+
+UserTerminal o--> EventProcessor : manages >
+
+
+EventProcessor ..> INotificationService : uses >
+
+@enduml
