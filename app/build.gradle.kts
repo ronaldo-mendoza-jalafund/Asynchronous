@@ -11,8 +11,7 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     implementation("org.slf4j:slf4j-simple:2.0.0-alpha1")
 
-    // This dependency is used by the application.
-    implementation(libs.guava)
+    testImplementation("org.mockito:mockito-core:3.11.2")
 }
 
 java {
