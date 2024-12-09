@@ -1,4 +1,4 @@
-package org.example.broker;
+package org.example.event_broker;
 
 import java.util.concurrent.CompletableFuture;
 

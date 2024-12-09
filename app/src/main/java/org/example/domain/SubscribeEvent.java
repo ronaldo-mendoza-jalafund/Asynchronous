@@ -1,21 +1,13 @@
 package org.example.domain;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Value;
+
 import java.util.UUID;
 
+@Value
 public class SubscribeEvent {
-  private UUID id;
-  private String topic;
-
-  public SubscribeEvent(String topic) {
-      this.id = UUID.randomUUID();
-      this.topic = topic;
-  }
-
-  public UUID getId() {
-      return id;
-  }
-
-  public String getTopic() {
-      return topic;
-  }
+  UUID id;
+  String topic;
 }

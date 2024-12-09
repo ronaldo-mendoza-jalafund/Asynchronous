@@ -1,13 +1,22 @@
 package org.example;
 
+import org.example.event_broker.ClientSocket;
+import org.example.domain.NotificationEvent;
+import org.example.event_broker.EventPublisher;
+import org.example.processor.NotificationEventProcessor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NotificationEventProcessorTest {
     private EventPublisher eventPublisher;
     private ClientSocket clientSocket;
     private NotificationEventProcessor notificationEventProcessor;
 
-    @Before
+    @BeforeEach
     public void setup() { 
         this.eventPublisher = new EventPublisher();
         this.clientSocket = new ClientSocket(); 

@@ -1,13 +1,12 @@
 package org.example.mappers;
 
+import lombok.Builder;
+import lombok.Getter;
+
+import java.util.UUID;
+
+@Builder
+@Getter
 public class SubscribeResponse {
-    private String id;
-
-    public SubscribeResponse(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
+    private final UUID id;
 }

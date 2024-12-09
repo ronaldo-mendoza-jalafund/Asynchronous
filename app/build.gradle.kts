@@ -1,5 +1,6 @@
 plugins {
     application
+    id("io.freefair.lombok") version "8.11"
 }
 
 repositories {
@@ -12,6 +13,7 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.0-alpha1")
 
     testImplementation("org.mockito:mockito-core:3.11.2")
+
 }
 
 java {

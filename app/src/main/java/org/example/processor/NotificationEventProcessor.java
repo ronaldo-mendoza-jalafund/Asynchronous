@@ -1,29 +1,29 @@
 package org.example.processor;
 
 import org.example.domain.NotificationEvent;
-import org.example.broker.*;
+import org.example.event_broker.*;
+import org.example.event_broker.ClientSocket;
+import org.example.event_processor.IEventProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class NotificationEventProcessor implements IEventProcessor {
+public class NotificationEventProcessor implements IEventProcessor<NotificationEvent> {
   private final ClientSocket clientSocket;
-  private EventPublisher eventBroker;
+  private EventPublisher<NotificationEvent> eventBroker;
   private List<NotificationEvent> pendingNotifications;
 
-  public NotificationEventProcessor(ClientSocket clientSocket, EventPublisher eventBroker) {
+  public NotificationEventProcessor(ClientSocket clientSocket, EventPublisher<NotificationEvent> eventBroker) {
       this.clientSocket = clientSocket;
       this.eventBroker = eventBroker;
       this.pendingNotifications = new ArrayList<>();
   }
 
   @Override
-  public void handleEvent(Object event) {
-      if (event instanceof NotificationEvent notificationEvent) {
-          pendingNotifications.add(notificationEvent);
-          send(notificationEvent);
-      }
+  public void handleEvent(NotificationEvent event) {
+      pendingNotifications.add(event);
+      send(event);
   }
 
   public void send(NotificationEvent event) {

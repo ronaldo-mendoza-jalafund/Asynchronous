@@ -1,21 +1,11 @@
 package org.example.domain;
 
+import lombok.Value;
+
 import java.util.UUID;
 
+@Value
 public class NotificationEvent {
-  private UUID subscriberId;
-  private String payload;
-
-  public NotificationEvent(UUID subscriberId, String payload) {
-      this.subscriberId = subscriberId;
-      this.payload = payload;
-  }
-
-  public UUID getSubscriberId() {
-      return subscriberId;
-  }
-
-  public String getPayload() {
-      return payload;
-  } 
+    UUID subscriberId;
+    String payload;
 }
