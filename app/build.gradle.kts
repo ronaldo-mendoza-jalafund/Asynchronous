@@ -16,12 +16,10 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit test framework.
-    testImplementation(libs.junit)
+    testImplementation(libs.junit) // Asegúrate de que esta línea esté bien configurada en libs.versions.toml
     implementation("org.slf4j:slf4j-simple:2.0.0-alpha1")
-
-    // This dependency is used by the application.
-    implementation(libs.guava)
+    implementation(libs.guava) // Asegúrate de que esta línea esté bien configurada en libs.versions.toml
+    testImplementation("org.mockito:mockito-core:3.11.2")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
