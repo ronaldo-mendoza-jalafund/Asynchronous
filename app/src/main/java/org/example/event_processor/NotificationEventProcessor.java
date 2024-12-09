@@ -1,4 +1,4 @@
-package org.example.processor;
+package org.example.event_processor;
 
 import org.example.domain.NotificationEvent;
 import org.example.event_broker.*;

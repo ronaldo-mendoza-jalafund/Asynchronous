@@ -3,7 +3,7 @@ package org.example;
 import org.example.event_broker.ClientSocket;
 import org.example.domain.NotificationEvent;
 import org.example.event_broker.EventPublisher;
-import org.example.processor.NotificationEventProcessor;
+import org.example.event_processor.NotificationEventProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
