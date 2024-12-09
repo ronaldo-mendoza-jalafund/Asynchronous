@@ -33,5 +33,5 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.apollo.App"
+    mainClass = "org.apollo.UserTerminal"
 }
