@@ -2,14 +2,6 @@ package org.example;
 
 import java.util.UUID;
 
-import org.broker.ClientSocket;
-import org.broker.EventPublisher;
-import org.domain.NotificationEvent;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
-import org.processor.NotificationEventProcessor;
-
 public class NotificationEventProcessorTest {
     private EventPublisher eventPublisher;
     private ClientSocket clientSocket;

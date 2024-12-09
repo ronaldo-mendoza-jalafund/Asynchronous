@@ -1,12 +1,11 @@
-package org.processor;
+package org.example.processor;
+
+import org.example.domain.NotificationEvent;
+import org.example.broker.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import org.broker.ClientSocket;
-import org.broker.EventPublisher;
-import org.domain.NotificationEvent;
 
 public class NotificationEventProcessor implements IEventProcessor {
   private final ClientSocket clientSocket;

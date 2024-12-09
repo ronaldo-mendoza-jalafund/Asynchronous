@@ -1,19 +1,21 @@
 package org.example.domain;
 
+import java.util.UUID;
+
 public class SubscribeEvent {
-    private String topicName;
-    private int subscriberId;
+  private UUID id;
+  private String topic;
 
-    public SubscribeEvent(String topicName, int subscriberId) {
-        this.topicName = topicName;
-        this.subscriberId = subscriberId;
-    }
+  public SubscribeEvent(String topic) {
+      this.id = UUID.randomUUID();
+      this.topic = topic;
+  }
 
-    public String getTopicName() {
-        return topicName;
-    }
+  public UUID getId() {
+      return id;
+  }
 
-    public int getSubscriberId() {
-        return subscriberId;
-    }
+  public String getTopic() {
+      return topic;
+  }
 }
