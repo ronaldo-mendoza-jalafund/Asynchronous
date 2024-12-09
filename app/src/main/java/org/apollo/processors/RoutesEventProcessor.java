@@ -6,7 +6,7 @@ import org.apollo.events.RouteUpdateEvent;
 
 
 
-public class RoutesEventProcessor extends EventProcessor {
+public class RoutesEventProcessor implements EventProcessor {
   @Override
   public void processEvent(Event event) {
       if (event instanceof RouteUpdateEvent routeEvent) {

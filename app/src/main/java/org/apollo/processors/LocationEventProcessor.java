@@ -5,7 +5,7 @@ import org.apollo.events.EventProcessor;
 import org.apollo.events.LocationUpdateEvent;
 
 
-public class LocationEventProcessor extends EventProcessor {
+public class LocationEventProcessor implements EventProcessor {
   
   @Override
   public void processEvent(Event event) {
